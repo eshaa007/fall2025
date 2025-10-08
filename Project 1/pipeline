@@ -1,0 +1,147 @@
+#step 1
+#!/bin/bash
+# FastQC script for raw genome 13 reads for project 1
+
+#fastqc command
+fastqc \
+
+#input files
+/lustre/isaac24/proj/UTK0385/bholder5/project1/raw_data/genome13_R1.fastq.gz \
+/lustre/isaac24/proj/UTK0385/bholder5/project1/raw_data/genome13_R2.fastq.gz \
+
+#output files
+-o /lustre/isaac24/proj/UTK0385/bholder5/project1/raw_fastqc_results/
+
+
+#couldnt get this to work :(
+#used the following in the terminal in line
+#fastqc /lustre/isaac24/proj/UTK0385/bholder5/project1/raw_data/genome13_R1.fastq.gz /lustre/isaac24/proj/UTK0385/bholder5/project1/raw_data/genome13_R2.fastq.gz -o /lustre/isaac24/proj/UTK0385/bholder5/project1/raw_fastqc_results/
+
+##Step 2
+#!/bin/bash
+# Trimmomatic script for project 1 based on raw FastQC report
+
+#Trimmomatic Command
+trimmomatic PE -phred33 \
+
+#input files
+/lustre/isaac24/proj/UTK0385/bholder5/project1/raw_data/genome13_R1.fastq.gz \
+/lustre/isaac24/proj/UTK0385/bholder5/project1/raw_data/genome13_R2.fastq.gz \
+
+#output files
+/lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R1_paired.fastq.gz \
+/lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R1_unpaired.fastq.gz \
+/lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R2_paired.fastq.gz \
+/lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R2_unpaired.fastq.gz \
+ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 \
+LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36
+
+#Illuminaclip will cut adapters off
+#remove leading low quality or N bases below quality 10
+#remove trailing low quality or N bases below quality 10
+#SLIDINGWINDOW:4:15 will scan the read with a 4 base window cutting when the avg quality drops below 15
+#drops reads below 50 bp long
+
+#first filename is the input forward PE file
+#second filename is the input reverse PE file
+
+#third filename is the output forward paired trimmed reads
+#forth filename is the output forward unpaired trimmed reads
+
+#fifth filemane is the output reverse paired trimmed reads
+#sixth filename is the output reverse unpaired trimmed reads
+
+#couldnt get it to run with bash so ran following in line
+#trimmomatic PE -phred33 /lustre/isaac24/proj/UTK0385/bholder5/project1/raw_data/genome13_R1.fastq.gz /lustre/isaac24/proj/UTK0385/bholder5/project1/raw_data/genome13_R2.fastq.gz /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R1_paired.fastq.gz /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R1_unpaired.fastq.gz /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R2_paired.fastq.gz /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R2_unpaired.fastq.gz ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36
+
+##Step 3
+#!/bin/bash
+# FastQC script for raw genome 13 reads for project 1
+
+#fastqc command
+fastqc \
+
+#input files
+/lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R1_paired.fastq.gz \
+/lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R2_paired.fastq.gz \
+
+#output files
+-o /lustre/isaac24/proj/UTK0385/bholder5/project1/trim_fastqc_results/
+
+
+#couldnt get this to work :(
+#used the following in the terminal in line
+#fastqc /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R1_paired.fastq.gz /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R2_paired.fastq.gz -o /lustre/isaac24/proj/UTK0385/bholder5/project1/trim_fastqc_results/
+
+
+##Step 4 spades
+#!/bin/bash
+#spades genome assembler script for project
+
+#spades command
+spades.py 
+
+#input files
+-1 /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R1_paired.fastq.gz 
+-2 /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R2_paired.fastq.gz 
+
+#data type is isolate
+--isolate
+
+#We are going to provide only a single k-mer size for sake of time
+-k 55 
+
+# how many threads we want to use for speeding up process
+--threads 8 
+
+#output file
+-o /lustre/isaac24/proj/UTK0385/bholder5/project1/assembly_results
+
+#ran inline
+#spades.py -1 /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R1_paired.fastq.gz -2 /lustre/isaac24/proj/UTK0385/bholder5/project1/trimmomatic_results/genome13_R2_paired.fastq.gz --isolate -k 55 --threads 8 -o /lustre/isaac24/proj/UTK0385/bholder5/project1/assembly_results
+
+##Step 5 quast
+#!/bin/bash
+#QUAST evaluation of genome assembly for project 1
+
+#QUAST command
+quast.py \
+
+#output file
+-o /lustre/isaac24/proj/UTK0385/bholder5/project1/quast_output \
+
+#thread count
+-t 8 \
+
+#SPAdes assembly input file
+/lustre/isaac24/proj/UTK0385/bholder5/project1/assembly_results/contigs.fasta
+
+#inline command
+#quast.py -o /lustre/isaac24/proj/UTK0385/bholder5/project1/quast_output -t 8 /lustre/isaac24/proj/UTK0385/bholder5/project1/assembly_results/contigs.fasta
+
+##Step 6 prokka
+#!/bin/bash
+#script to run Prokka for project 1
+
+#prokka command
+prokka 
+
+#output folder
+--outdir /lustre/isaac24/proj/UTK0385/bholder5/project1/prokka_results 
+
+#prefix for output files
+--prefix genome13
+
+#use 8 cores
+--cpus 8 
+
+#SPAdes assembly
+/lustre/isaac24/proj/UTK0385/bholder5/project1/assembly_results/contigs.fasta
+
+
+
+
+
+#inline command
+#prokka --outdir /lustre/isaac24/proj/UTK0385/bholder5/project1/prokka_results --prefix genome13 --cpus 8 /lustre/isaac24/proj/UTK0385/bholder5/project1/assembly_results/contigs.fasta
+
