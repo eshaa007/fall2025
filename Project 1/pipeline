@@ -138,10 +138,6 @@ prokka
 #SPAdes assembly
 /lustre/isaac24/proj/UTK0385/bholder5/project1/assembly_results/contigs.fasta
 
-
-
-
-
 #inline command
 #prokka --outdir /lustre/isaac24/proj/UTK0385/bholder5/project1/prokka_results --prefix genome13 --cpus 8 /lustre/isaac24/proj/UTK0385/bholder5/project1/assembly_results/contigs.fasta
 
